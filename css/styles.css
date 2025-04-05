@@ -1,72 +1,74 @@
+/* Estilo geral */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .container {
-    width: 50%;
-    margin: auto;
-    text-align: center;
-    background-color: #fff;
-    padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    margin-top: 50px;
-  }
-  
-  h1 {
-    color: #333;
-  }
-  
-  input,
-  button {
-    margin: 5px;
-    padding: 10px;
-    width: calc(100% - 22px);
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-    width: 200px; /* Define a fixed width */
-    height: 30px;
-    
-  }
-  
-  button:hover {
-    background-color: #0056b3;
-  }
-  
-  #book-list {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  #book-list li {
-    padding: 10px;
-    border-bottom: 1px solid #ccc;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  #book-list li button {
-    background-color: #dc3545;
-    border: none;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 80px; 
-    height: 30px; 
-  }
-  
-  #book-list li button:hover {
-    background-color: #c82333;
-  }
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  width: 50%;
+  margin: auto;
+  text-align: center;
+  background-color: #fff;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin-top: 50px;
+}
+
+h1 {
+  color: #333;
+}
+
+input,
+button {
+  margin: 5px;
+  padding: 10px;
+  width: calc(100% - 22px);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  background-color: #007bff; /* Azul padrão */
+  color: white;
+  border: none;
+  cursor: pointer;
+  width: 200px; /* Largura fixa */
+  height: 30px;
+}
+
+button:hover {
+  background-color: #0056b3; /* Azul mais escuro no hover */
+}
+
+/* Lista de livros */
+#book-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+#book-list li {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Botão de excluir */
+button.delete-button {
+  background-color: #dc3545; /* Vermelho */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 80px;
+  height: 30px;
+}
+
+button.delete-button:hover {
+  background-color: #c82333; /* Vermelho mais escuro no hover */
+}

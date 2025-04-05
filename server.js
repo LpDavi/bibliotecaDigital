@@ -50,6 +50,11 @@ Book.hasMany(Review);
 Review.belongsTo(User);
 Review.belongsTo(Book);
 
+app.listen(3001, async () => {
+  await sequelize.sync({ force: false });
+  console.log('Servidor rodando na porta 3001');
+});
+
 // Registro de usuário
 app.post('/register', async (req, res) => {
   const { username, password } = req.body;
@@ -75,7 +80,50 @@ app.post('/books', async (req, res) => {
   res.json(book);
 });
 
-app.listen(3001, async () => {
-  await sequelize.sync({ force: false });
-  console.log('Servidor rodando na porta 3001');
+// Listar livros
+app.get('/books', async (req, res) => {
+  const books = await Book.findAll();
+  res.json(books);
+});
+
+// Criar avaliação
+app.post('/books/:id/review', async (req, res) => {
+  const { id } = req.params; // ID do livro
+  const { userId, rating, comment } = req.body; // Dados da avaliação
+
+  try {
+    const book = await Book.findByPk(id);
+    if (!book) {
+      return res.status(404).json({ message: 'Livro não encontrado' });
+    }
+
+    const review = await Review.create({
+      userId,
+      bookId: id,
+      rating,
+      comment,
+    });
+
+    res.json({ message: 'Avaliação registrada com sucesso!', review });
+  } catch (error) {
+    console.error('Erro ao registrar a avaliação:', error);
+    res.status(500).json({ message: 'Erro ao registrar a avaliação' });
+  }
+});
+
+// Excluir livro
+app.delete('/books/:id', async (req, res) => {
+  const { id } = req.params;
+  console.log('ID do livro a ser excluído:', id);
+  try {
+    const book = await Book.findByPk(id);
+    if (!book) {
+      return res.status(404).json({ message: 'Livro não encontrado' });
+    }
+    await book.destroy();
+    res.json({ message: 'Livro excluído com sucesso' });
+  } catch (error) {
+    console.error('Erro ao excluir o livro:', error);
+    res.status(500).json({ message: 'Erro ao excluir o livro' });
+  }
 });
