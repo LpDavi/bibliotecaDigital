@@ -1,101 +1,106 @@
-// Função para registrar um usuário
-async function register() {
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
-  const response = await fetch("http://localhost:3001/register", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
-  });
-  alert("Usuário registrado!");
+const API = 'http://localhost:3001';
+let token = localStorage.getItem('token');
+
+if (token) {
+  document.getElementById('auth').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadBooks();
 }
 
-// Função para fazer login
-async function login() {
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
-  const response = await fetch("http://localhost:3001/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
-  });
-  const data = await response.json();
-  if (data.token) {
-    localStorage.setItem("token", data.token);
-    alert("Login realizado com sucesso!");
-    document.getElementById("auth-container").style.display = "none";
-    document.getElementById("book-container").style.display = "block";
-    getBooks();
-  } else {
-    alert("Falha no login!");
-  }
+function register() {
+  const username = document.getElementById('registerUsername').value;
+  const password = document.getElementById('registerPassword').value;
+
+  fetch(`${API}/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  }).then(res => res.json())
+    .then(() => alert('Usuário cadastrado com sucesso!'));
 }
 
-// Função para carregar os livros
-async function getBooks() {
-  try {
-    const response = await fetch("http://localhost:3001/books");
-    if (!response.ok) {
-      throw new Error("Erro ao carregar os livros");
-    }
-    const books = await response.json();
-    const bookList = document.getElementById("book-list");
-    bookList.innerHTML = "";
+function login() {
+  const username = document.getElementById('loginUsername').value;
+  const password = document.getElementById('loginPassword').value;
 
-    books.forEach((book) => {
-      const li = document.createElement("li");
-      li.textContent = `${book.title} - ${book.author}`;
-
-      // Botão para excluir o livro
-      const deleteButton = document.createElement("button");
-      deleteButton.textContent = "Excluir";
-      deleteButton.className = "delete-button";
-      deleteButton.onclick = () => deleteBook(book.id);
-
-      // Adiciona o botão ao item da lista
-      li.appendChild(deleteButton);
-
-      // Adiciona o item à lista
-      bookList.appendChild(li);
+  fetch(`${API}/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  }).then(res => res.json())
+    .then(data => {
+      if (data.token) {
+        token = data.token;
+        localStorage.setItem('token', token);
+        document.getElementById('auth').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        loadBooks();
+      } else {
+        alert('Login inválido!');
+      }
     });
-  } catch (error) {
-    console.error("Erro ao carregar os livros:", error);
-    alert("Erro ao carregar os livros!");
-  }
 }
 
-// Função para adicionar um livro
-async function addBook() {
-  const title = document.getElementById("bookTitle").value;
-  const author = document.getElementById("bookAuthor").value;
-
-  await fetch("http://localhost:3001/books", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title, author }),
-  });
-
-  alert("Livro adicionado!");
-  getBooks();
+function logout() {
+  token = null;
+  localStorage.removeItem('token');
+  document.getElementById('auth').style.display = 'block';
+  document.getElementById('app').style.display = 'none';
 }
 
-// Função para excluir um livro
-async function deleteBook(id) {
-  try {
-    const response = await fetch(`http://localhost:3001/books/${id}`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
+function addBook() {
+  const title = document.getElementById('title').value;
+  const author = document.getElementById('author').value;
+
+  fetch(`${API}/books`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, author })
+  }).then(res => res.json())
+    .then(loadBooks);
+}
+
+function loadBooks() {
+  fetch(`${API}/books`)
+    .then(res => res.json())
+    .then(books => {
+      const list = document.getElementById('bookList');
+      list.innerHTML = '';
+      books.forEach(book => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <strong>${book.title}</strong> - ${book.author}
+          <button onclick="rateBook(${book.id})">Avaliar</button>
+          <button onclick="deleteBook(${book.id})">Excluir</button>
+        `;
+        list.appendChild(li);
+      });
     });
+}
 
-    if (response.ok) {
-      alert("Livro excluído com sucesso!");
-      getBooks(); // Atualiza a lista de livros
-    } else {
-      const errorData = await response.json();
-      alert("Erro ao excluir o livro: " + (errorData.message || "Erro desconhecido"));
-    }
-  } catch (error) {
-    console.error("Erro ao excluir o livro:", error);
-    alert("Erro ao excluir o livro!");
+function deleteBook(id) {
+  fetch(`${API}/books/${id}`, {
+    method: 'DELETE'
+  }).then(() => loadBooks());
+}
+
+function rateBook(bookId) {
+  const rating = prompt('Dê uma nota de 1 a 5:');
+  const comment = prompt('Deixe um comentário (opcional):');
+  const userId = decodeToken(token).id;
+
+  fetch(`${API}/books/${bookId}/review`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId, rating: parseInt(rating), comment })
+  }).then(res => res.json())
+    .then(data => alert(data.message));
+}
+
+function decodeToken(token) {
+  try {
+    return JSON.parse(atob(token.split('.')[1]));
+  } catch (e) {
+    return {};
   }
 }
